@@ -371,12 +371,8 @@ fn sockaddr_to_socketaddr(s: sockaddr) -> SocketAddr {
         AF_INET => {
             let name1: sockaddr_in = unsafe{ std::mem::transmute(s) };
             let ip: u32 = name1.sin_addr.s_addr;
-            let d: u8 = ((ip & 0xff000000) >> 24) as u8;
-            let c: u8 = ((ip & 0xff0000) >> 16) as u8;
-            let b: u8 = ((ip & 0xff00) >> 8) as u8;
-            let a: u8 = ((ip & 0xff)) as u8;
             SocketAddr::V4(SocketAddrV4::new(
-                        std::net::Ipv4Addr::new(a, b, c, d),
+                        std::net::Ipv4Addr::from(ip),
                         u16::from_be(name1.sin_port)
                         ))
         },
@@ -850,7 +846,7 @@ impl UdtSocket {
     }
 }
 
-/// Used with the `epoll*` methods of a UDTSocket
+/// Used with the `epoll*` methods of a `UDTSocket`
 ///
 /// The epoll functions provides a highly scalable and efficient way to wait for UDT sockets IO
 /// events. It should be used instead of select and selectEx when the application needs to wait for
@@ -864,10 +860,10 @@ impl UdtSocket {
 ///
 /// Multiple epoll entities can be created and there is no upper limits as long as system resource
 /// allows. There is also no hard limit on the number of UDT sockets. The number system descriptors
-/// supported by UDT::epoll are platform dependent.
+/// supported by `UDT::epoll` are platform dependent.
 ///
 /// For system sockets on Linux, developers may choose to watch individual events from EPOLLIN
-/// (read), EPOLLOUT (write), and EPOLLERR (exceptions). When using epoll_remove_ssock, if the
+/// (read), EPOLLOUT (write), and EPOLLERR (exceptions). When using `epoll_remove_ssock`, if the
 /// socket is waiting on multiple events, only those specified in events are removed. The events
 /// can be a combination (with "|" operation) of any of the following values.
 ///
